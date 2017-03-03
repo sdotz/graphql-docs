@@ -2,6 +2,8 @@
 
 Easily generate beautiful documentation from your GraphQL schema.
 
+![sample](https://cloud.githubusercontent.com/assets/64050/23438604/6a23add0-fdc7-11e6-8852-ef41e8451033.png)
+
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -23,22 +25,22 @@ Or install it yourself as:
 Simple! Call `GraphQLDocs.generate`, taking care to pass in the GraphQL endpoint:
 
 ``` ruby
-GraphQLDocs.build(url: "http://graphql.org/swapi-graphql/")
+GraphQLDocs.build(url: 'http://graphql.org/swapi-graphql/')
 ```
 
 If your GraphQL endpoint requires authentication, you can provide a username or password, or an access token:
 
 ``` ruby
 options = {
-  url: "http://graphql.org/swapi-graphql/"
-  login: "gjtorikian",
-  password: "lolnowai"
+  url: 'http://graphql.org/swapi-graphql/'
+  login: 'gjtorikian',
+  password: 'lolnowai'
 }
 GraphQLDocs.build(options)
 
 options = {
-  url: "http://graphql.org/swapi-graphql/"
-  access_token: "something123"
+  url: 'http://graphql.org/swapi-graphql/'
+  access_token: 'something123'
 }
 
 GraphQLDocs.build(options)
@@ -126,6 +128,8 @@ The following options are available:
 | `path` | `GraphQLDocs::Client` loads a JSON file found at this location, representing the response from an introspection query. | `nil` |
 | `url` | `GraphQLDocs::Client` makes a `POST` request to this URL, passing along the introspection query. | `nil` |
 | `output_dir` | The location of the output HTML. | `./output/` |
+| `use_default_styles` | Indicates if you want to use the default styles. | `true` |
+| `base_url` | Indicates the base URL to prepend for assets and links. | `true` |
 | `delete_output` | Deletes `output_dir` before generating content. | `false` |
 | `pipeline_config` | Defines two sub-keys, `pipeline` and `context`, which are used by `html-pipeline` when rendering your output. | `pipeline` has `ExtendedMarkdownFilter`, `EmojiFilter`, and `TableOfContentsFilter`. `context` has `gfm: false` and `asset_root` set to GitHub's CDN. |
 | `renderer` | The rendering class to use. | `GraphQLDocs::Renderer`

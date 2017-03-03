@@ -28,14 +28,15 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'github-markdown', '0.6.9'
   spec.add_dependency 'extended-markdown-filter', '~> 0.4'
   spec.add_dependency 'gemoji', '2.1.0'
+  spec.add_dependency 'sass', '~> 3.4'
 
   spec.add_development_dependency 'awesome_print'
   spec.add_development_dependency 'bundler', '~> 1.14'
+  spec.add_development_dependency 'html-proofer', '~> 3.4'
   spec.add_development_dependency 'minitest', '~> 5.0'
   spec.add_development_dependency 'minitest-focus', '~> 1.1'
   spec.add_development_dependency 'pry', '~> 0.10.0'
   spec.add_development_dependency 'rake', '~> 10.0'
   spec.add_development_dependency 'rubocop-github'
-  spec.add_development_dependency 'sass', '~> 3.4'
   spec.add_development_dependency 'webmock', '~> 2.3'
 end

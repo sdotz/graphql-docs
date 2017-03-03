@@ -1,4 +1,5 @@
 require 'erb'
+require 'sass'
 
 module GraphQLDocs
   class Generator
@@ -36,13 +37,24 @@ module GraphQLDocs
         write_file('static', 'index', File.read(@options[:templates][:index]))
       end
 
+      if @options[:use_default_styles]
+        assets_dir = File.join(File.dirname(__FILE__), 'layouts', 'assets')
+        FileUtils.mkdir_p(File.join(@options[:output_dir], 'assets'))
+
+        sass = File.join(assets_dir, 'css', 'screen.scss')
+        system `sass --sourcemap=none #{sass}:#{@options[:output_dir]}/assets/style.css`
+
+        FileUtils.cp_r(File.join(assets_dir, 'images'), File.join(@options[:output_dir], 'assets'))
+        FileUtils.cp_r(File.join(assets_dir, 'webfonts'), File.join(@options[:output_dir], 'assets'))
+      end
+
       true
     end
 
     def create_graphql_object_pages
       graphql_object_types.each do |object_type|
         next if object_type['name'].start_with?('__')
-        opts = { type: object_type }.merge(helper_methods)
+        opts = default_generator_options(type: object_type)
         contents = @graphql_object_template.result(OpenStruct.new(opts).instance_eval { binding })
         write_file('object', object_type['name'], contents)
       end
@@ -55,7 +67,7 @@ module GraphQLDocs
         input = graphql_input_object_types.find { |t| t['name'] == input_name }
         payload = graphql_object_types.find { |t| t['name'] == return_name }
 
-        opts = { type: mutation, input_fields: input, return_fields: payload }.merge(helper_methods)
+        opts = default_generator_options({ type: mutation, input_fields: input, return_fields: payload })
 
         contents = @graphql_mutations_template.result(OpenStruct.new(opts).instance_eval { binding })
         write_file('mutation', mutation['name'], contents)
@@ -64,7 +76,7 @@ module GraphQLDocs
 
     def create_graphql_interface_pages
       graphql_interface_types.each do |interface_type|
-        opts = { type: interface_type }.merge(helper_methods)
+        opts = default_generator_options({ type: interface_type })
 
         contents = @graphql_interfaces_template.result(OpenStruct.new(opts).instance_eval { binding })
         write_file('interface', interface_type['name'], contents)
@@ -73,7 +85,7 @@ module GraphQLDocs
 
     def create_graphql_enum_pages
       graphql_enum_types.each do |enum_type|
-        opts = { type: enum_type }.merge(helper_methods)
+        opts = default_generator_options({ type: enum_type })
 
         contents = @graphql_enums_template.result(OpenStruct.new(opts).instance_eval { binding })
         write_file('enum', enum_type['name'], contents)
@@ -82,7 +94,7 @@ module GraphQLDocs
 
     def create_graphql_union_pages
       graphql_union_types.each do |union_type|
-        opts = { type: union_type }.merge(helper_methods)
+        opts = default_generator_options({ type: union_type })
 
         contents = @graphql_unions_template.result(OpenStruct.new(opts).instance_eval { binding })
         write_file('union', union_type['name'], contents)
@@ -91,7 +103,7 @@ module GraphQLDocs
 
     def create_graphql_input_object_pages
       graphql_input_object_types.each do |input_object_type|
-        opts = { type: input_object_type }.merge(helper_methods)
+        opts = default_generator_options({ type: input_object_type })
 
         contents = @graphql_input_objects_template.result(OpenStruct.new(opts).instance_eval { binding })
         write_file('input_object', input_object_type['name'], contents)
@@ -100,7 +112,7 @@ module GraphQLDocs
 
     def create_graphql_scalar_pages
       graphql_scalar_types.each do |scalar_type|
-        opts = { type: scalar_type }.merge(helper_methods)
+        opts = default_generator_options({ type: scalar_type })
 
         contents = @graphql_scalars_template.result(OpenStruct.new(opts).instance_eval { binding })
         write_file('scalar', scalar_type['name'], contents)
@@ -108,6 +120,10 @@ module GraphQLDocs
     end
 
     private
+
+    def default_generator_options(opts = {})
+      @options.merge(opts).merge(helper_methods)
+    end
 
     def write_file(type, name, contents)
       if type == 'static'
