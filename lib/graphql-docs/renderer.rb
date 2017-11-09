@@ -1,13 +1,16 @@
 require 'html/pipeline'
+require 'yaml'
 require 'extended-markdown-filter'
 
 module GraphQLDocs
   class Renderer
     include Helpers
 
-    def initialize(options, parsed_schema)
-      @options = options
+    attr_reader :options
+
+    def initialize(parsed_schema, options)
       @parsed_schema = parsed_schema
+      @options = options
 
       unless @options[:templates][:default].nil?
         @graphql_default_layout = ERB.new(File.read(@options[:templates][:default]))
@@ -33,11 +36,17 @@ module GraphQLDocs
       @pipeline = HTML::Pipeline.new(filters, @pipeline_config[:context])
     end
 
-    def render(type, name, contents)
-      contents = @pipeline.to_html(contents)
+    def render(contents, type: nil, name: nil)
+      opts = { base_url: @options[:base_url] }.merge({ type: type, name: name}).merge(helper_methods)
+
+      contents = to_html(contents)
       return contents if @graphql_default_layout.nil?
-      opts = { contents: contents, type: type, name: name}.merge(helper_methods)
+      opts[:content] = contents
       @graphql_default_layout.result(OpenStruct.new(opts).instance_eval { binding })
+    end
+
+    def to_html(string)
+      @pipeline.to_html(string)
     end
 
     private

@@ -1,4 +1,4 @@
-<table class="arguments" markdown="1">
+<table class="arguments">
   <thead>
     <tr>
       <th>Argument</th>
@@ -7,23 +7,14 @@
     </tr>
   </thead>
   <tbody>
-  <% args.each do |argument| %>
+  <% arguments.each do |argument| %>
   <tr>
-    <td><code><%= argument['name'] %><code></td>
+    <td><code><%= argument[:name] %></code></td>
     <td>
-
-      <% if argument['type']['name'] == "Non-Null" %>
-        <% @arg_path = argument['type']['ofType']['kind'] %>
-        <% @arg_name = argument['type']['ofType']['name'] %>
-      <% else %>
-        <% @arg_path = argument['type']['kind'] %>
-        <% @arg_name = argument['type']['name'] %>
-      <% end %>
-
-      <code><%= @arg_name %></code>
+      <code><a href="<%= base_url %>/<%= argument[:type][:path]%>"><%= argument[:type][:info] %></a></code>
     </td>
     <td>
-      <p><%= markdown.(argument['description']) %></p>
+      <p><%= markdownify.(argument[:description]) %></p>
     </td>
   </tr>
   <% end %>
