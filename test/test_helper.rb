@@ -4,9 +4,7 @@ require 'graphql-docs'
 require 'minitest/autorun'
 require 'minitest/pride'
 require 'minitest/focus'
-require 'webmock/minitest'
-
-WebMock.disable_net_connect!
+require 'pry'
 
 def fixtures_dir
   File.join(File.dirname(__FILE__), 'graphql-docs', 'fixtures')

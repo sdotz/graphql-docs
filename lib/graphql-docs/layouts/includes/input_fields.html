@@ -1,40 +1,13 @@
-### Input Fields
-
 <% input_fields.each do |field| %>
 
-<% next if field['type']['ofType'] && field['type']['ofType']['name'] && field['type']['ofType']['name'].end_with?('Connection') %>
-
-<div class="field-entry">
-  <% next if field['name'] == "id" || field['name'].blank? %>
-
-  <% if field['type']['ofType'] && !field['type']['ofType']['ofType'].nil? %>
-    <% if !field['type']['ofType']['ofType']['ofType'].nil? %>
-      <% @type_path = field['type']['ofType']['ofType']['ofType']['kind'] %>
-      <% @type_name = field['type']['ofType']['ofType']['ofType']['name'] %>
-    <% else %>
-      <% @type_path = field['type']['ofType']['ofType']['kind'] %>
-      <% @type_name = field['type']['ofType']['ofType']['name'] %>
-    <% end %>
-  <% elsif field['type']['ofType'].blank? %>
-    <% @type_path = field['type']['kind'] %>
-    <% @type_name = field['type']['name'] %>
-  <% elsif field['type']['name'] == "Non-Null" || field['type']['ofType']['name'] == "Non-Null" %>
-    <% @type_path = field['type']['ofType']['kind'] %>
-    <% @type_name = field['type']['ofType']['name'] %>
-  <% else %>
-    <% @type_path = field['type']['ofType']['kind'] %>
-    <% @type_name = field['type']['ofType']['name'] %>
-  <% end %>
-
-  <span class="field-name"><%= field['name'] %> (<a href="<%= base_url %>/<%= @type_path.downcase %>/<%= slugify.(@type_name) %>"><code><%= @type_name %></code></a>)</span>
+<div class="field-entry <%= classes[:field_entry] %>">
+  <span id="<%= slugify.(field[:name]) %>" class="field-name"><%= field[:name] %> (<a href="<%= base_url %>/<%= field[:type][:path] %>"><code><%= field[:type][:info] %></code></a>)</span>
 
   <div class="description-wrapper">
-    <%= field['description'] %>
+    <%= field[:description] %>
 
-    <% unless field['args'].nil? %>
-
-      <%= include.('arguments.html', args: field['args']) %>
-
+    <% unless field[:arguments].empty? %>
+      <%= include.('arguments.html', arguments: field[:arguments]) %>
     <% end %>
   </div>
 </div>
