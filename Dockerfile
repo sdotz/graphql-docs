@@ -2,8 +2,6 @@ FROM ruby:2.3.3
 
 RUN gem install bundler
 
-RUN apt-get update && apt-get install -y cmake git
-
 COPY . /graphql-docs
 
 WORKDIR /graphql-docs
