@@ -14,6 +14,7 @@ class GraphQLDocsCLI < Thor
   option :filename, :type => :string, :desc => "Filename of the graphql schema"
 
   option :output_dir, :type => :string, :desc => "Path to output generated docs", :default => File.join(Dir.pwd, 'output')
+  option :base_url, :type => :string, :desc => "Base URL for assets and links", :default => ''
   option :delete_output, :type => :boolean, :desc => "Delete the output dir before generating", :default => false
 
   def build
@@ -27,6 +28,7 @@ class GraphQLDocsCLI < Thor
             filename: options[:filename],
             output_dir: options[:output_dir],
             delete_output: options[:delete_output],
+            base_url: options[:base_url],
         }
     )
 
