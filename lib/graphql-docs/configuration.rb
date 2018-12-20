@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module GraphQLDocs
   module Configuration
     GRAPHQLDOCS_DEFAULTS = {
@@ -15,6 +16,7 @@ module GraphQLDocs
            TableOfContentsFilter),
         context: {
           gfm: false,
+          unsafe: true, # necessary for layout needs, given that it's all HTML templates
           asset_root: 'https://a248.e.akamai.net/assets.github.com/images/icons'
         }
       },
@@ -51,7 +53,9 @@ module GraphQLDocs
 
       classes: {
         field_entry: '',
-        deprecation_notice: ''
+        deprecation_notice: '',
+        notice: '',
+        notice_title: '',
       }
     }.freeze
   end

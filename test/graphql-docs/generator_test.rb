@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'test_helper'
 
 class GeneratorTest < Minitest::Test
@@ -5,7 +6,7 @@ class GeneratorTest < Minitest::Test
     def initialize(_, _)
     end
 
-    def render(contents, type: nil, name: nil)
+    def render(contents, type: nil, name: nil, filename: nil)
       to_html(contents)
     end
 
@@ -24,6 +25,10 @@ class GeneratorTest < Minitest::Test
     @tiny_parser = GraphQLDocs::Parser.new(tiny_schema, {})
     @tiny_results = @tiny_parser.parse
 
+    named_root_schema = File.read(File.join(fixtures_dir, 'named-root-schema.graphql'))
+    @named_root_parser = GraphQLDocs::Parser.new(named_root_schema, {})
+    @named_root_results = @named_root_parser.parse
+
     @output_dir = File.join(fixtures_dir, 'output')
   end
 
@@ -32,19 +37,19 @@ class GeneratorTest < Minitest::Test
   end
 
   def test_that_it_requires_templates
-    config = deep_copy(GraphQLDocs::Configuration::GRAPHQLDOCS_DEFAULTS)
-    config[:templates][:objects] = 'BOGUS'
+    options = deep_copy(GraphQLDocs::Configuration::GRAPHQLDOCS_DEFAULTS)
+    options[:templates][:objects] = 'BOGUS'
 
-    assert_raises Errno::ENOENT do
-      GraphQLDocs::Generator.new(@results, config)
+    assert_raises IOError do
+      GraphQLDocs::Generator.new(@results, options)
     end
   end
 
   def test_that_it_does_not_require_default
-    config = deep_copy(GraphQLDocs::Configuration::GRAPHQLDOCS_DEFAULTS)
-    config[:templates][:default] = nil
+    options = deep_copy(GraphQLDocs::Configuration::GRAPHQLDOCS_DEFAULTS)
+    options[:templates][:default] = nil
 
-    GraphQLDocs::Generator.new(@results, config)
+    GraphQLDocs::Generator.new(@results, options)
   end
 
   def test_that_it_works
@@ -129,6 +134,27 @@ class GeneratorTest < Minitest::Test
     assert_match /<div class="field-entry my-4">/, object
   end
 
+  def test_that_named_query_root_generates_fields
+    options = deep_copy(GraphQLDocs::Configuration::GRAPHQLDOCS_DEFAULTS)
+    options[:output_dir] = @output_dir
+
+    generator = GraphQLDocs::Generator.new(@named_root_results, options)
+    generator.generate
+
+    object = File.read File.join(@output_dir, 'operation', 'query', 'index.html')
+
+    assert_match /Do a thing/, object
+  end
+
+  def test_that_missing_landing_pages_are_reported
+    options = deep_copy(GraphQLDocs::Configuration::GRAPHQLDOCS_DEFAULTS)
+    options[:landing_pages][:index] = 'BOGUS'
+
+    assert_raises IOError do
+      GraphQLDocs::Generator.new(@tiny_results, options)
+    end
+  end
+
   def test_that_broken_yaml_is_caught
     options = deep_copy(GraphQLDocs::Configuration::GRAPHQLDOCS_DEFAULTS)
     options[:landing_pages][:index] = File.join(fixtures_dir, 'landing_pages', 'broken_yaml.md')
@@ -137,5 +163,42 @@ class GeneratorTest < Minitest::Test
     assert_raises TypeError do
       generator.generate
     end
+  end
+
+  def test_that_markdown_preserves_whitespace
+    options = deep_copy(GraphQLDocs::Configuration::GRAPHQLDOCS_DEFAULTS)
+    options[:output_dir] = @output_dir
+    options[:landing_pages][:index] = File.join(fixtures_dir, 'landing_pages', 'whitespace_template.md')
+
+    generator = GraphQLDocs::Generator.new(@tiny_results, options)
+    generator.generate
+
+    contents = File.read File.join(@output_dir, 'index.html')
+
+    assert_match %r{    "nest2": \{}, contents
+  end
+
+  def test_that_empty_html_lines_not_interpreted_by_markdown
+    options = deep_copy(GraphQLDocs::Configuration::GRAPHQLDOCS_DEFAULTS)
+    options[:output_dir] = @output_dir
+
+    generator = GraphQLDocs::Generator.new(@tiny_results, options)
+    generator.generate
+
+    contents = File.read File.join(@output_dir, 'operation', 'query', 'index.html')
+
+    assert_match %r{<td>\s+<p>The code of conduct's key</p>\s+</td>}, contents
+  end
+
+  def test_that_non_empty_html_lines_not_interpreted_by_markdown
+    options = deep_copy(GraphQLDocs::Configuration::GRAPHQLDOCS_DEFAULTS)
+    options[:output_dir] = @output_dir
+
+    generator = GraphQLDocs::Generator.new(@results, options)
+    generator.generate
+
+    contents = File.read File.join(@output_dir, 'input_object', 'projectorder', 'index.html')
+
+    assert_match %r{<div class="description-wrapper">\n   <p>The direction in which to order projects by the specified field.</p>\s+</div>}, contents
   end
 end

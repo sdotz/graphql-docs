@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'bundler/gem_tasks'
 require 'rake/testtask'
 
@@ -14,10 +15,9 @@ end
 
 task default: :test
 
-Rake::Task[:test].enhance { Rake::Task[:html_proofer].invoke }
-
 desc 'Invoke HTML-Proofer'
-task html_proofer: [:generate_sample] do
+task :html_proofer do
+  Rake::Task[:generate_sample].invoke('https://www.gjtorikian.com/graphql-docs')
   require 'html-proofer'
   output_dir = File.join(File.dirname(__FILE__), 'output')
 
