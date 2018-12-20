@@ -1,4 +1,5 @@
 # coding: utf-8
+# frozen_string_literal: true
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'graphql-docs/version'
@@ -24,7 +25,9 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'thor', '0.19.4'
 
   # rendering
-  spec.add_dependency 'html-pipeline', '~> 2.2'
+  spec.add_dependency 'commonmarker', '~> 0.16'
+  spec.add_dependency 'html-pipeline', '~> 2.9'
+  spec.add_dependency 'escape_utils',  '~> 1.2'
   spec.add_dependency 'extended-markdown-filter', '~> 0.4'
   spec.add_dependency 'gemoji', '~> 3.0'
   spec.add_dependency 'sass', '~> 3.4'
@@ -34,8 +37,9 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'html-proofer', '~> 3.4'
   spec.add_development_dependency 'minitest', '~> 5.0'
   spec.add_development_dependency 'minitest-focus', '~> 1.1'
-  spec.add_development_dependency 'pry', '~> 0.10.0'
+  spec.add_development_dependency 'pry-byebug', '~> 3.6'
   spec.add_development_dependency 'rake'
+  spec.add_development_dependency 'rubocop'
   spec.add_development_dependency 'rubocop-github'
   spec.add_development_dependency 'webmock', '~> 2.3'
 end

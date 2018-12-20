@@ -1,4 +1,4 @@
-# rubocop:disable Style/FileName
+# frozen_string_literal: true
 require 'graphql-docs/helpers'
 require 'graphql-docs/renderer'
 require 'graphql-docs/configuration'
@@ -14,6 +14,17 @@ rescue LoadError; end
 module GraphQLDocs
   class << self
     def build(options)
+      # do not let user provided values overwrite every single value
+      %i(templates landing_pages).each do |opt|
+        if options.key?(opt)
+          GraphQLDocs::Configuration::GRAPHQLDOCS_DEFAULTS[opt].each_pair do |key, value|
+            unless options[opt].key?(key)
+              options[opt][key] = value
+            end
+          end
+        end
+      end
+
       options = GraphQLDocs::Configuration::GRAPHQLDOCS_DEFAULTS.merge(options)
 
       filename = options[:filename]
@@ -38,8 +49,8 @@ module GraphQLDocs
 
         schema = File.read(filename)
       else
-        unless schema.is_a?(String)
-          raise TypeError, "Expected `String`, got `#{schema.class}`"
+        if !schema.is_a?(String) && !schema.is_a?(GraphQL::Schema)
+          raise TypeError, "Expected `String` or `GraphQL::Schema`, got `#{schema.class}`"
         end
 
         schema = schema
